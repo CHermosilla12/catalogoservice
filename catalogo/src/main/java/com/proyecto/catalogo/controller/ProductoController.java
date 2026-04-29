@@ -31,7 +31,7 @@ public class ProductoController {
         if (prod.isPresent()){
             return new ResponseEntity<>(prod,HttpStatus.OK);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
     //Agregar productos
