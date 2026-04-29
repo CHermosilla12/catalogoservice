@@ -25,11 +25,13 @@ public class ServiceProducto {
         if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
             errores.add("El nombre del producto es obligatorio.");
         }
-        if (producto.getPrecio() <= 0 ) {
-            errores.add("El precio del producto es obligatorio y debe ser un valor positivo.");
+        if (producto.getPrecio() == null) {
+            errores.add("El precio del producto es obligatorio.");
+        } else if (producto.getPrecio() <= 0) {
+            errores.add("El precio del producto debe ser un valor positivo.");
         }
-        if (producto.getDescripcion() == null || producto.getDescripcion().isEmpty()) {
-            errores.add("La descripción del producto es obligatoria.");
+        if (producto.getDescripcion() == null || producto.getDescripcion().length() > 500 || producto.getDescripcion().isEmpty()) {
+            errores.add("La descripción del producto es obligatoria y no puede exceder los 500 caracteres.");
         }
         return errores;
     }

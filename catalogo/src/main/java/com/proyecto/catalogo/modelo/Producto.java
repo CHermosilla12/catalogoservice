@@ -4,9 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,10 +24,10 @@ public class Producto {
     @NotBlank(message = "El nombre del producto es obligatorio")
     private String nombre;
     
-    @Max(value = 255, message = "La descripción del producto no puede exceder los 255 caracteres")
+    @Size(max = 500, message = "La descripción del producto no puede exceder los 500 caracteres")
     private String descripcion;
 
     @Positive(message = "El precio del producto debe ser un valor positivo")
-    @NotBlank(message = "El precio del producto es obligatorio")
+    @NotNull(message = "El precio del producto es obligatorio")
     private Integer precio;
 }
