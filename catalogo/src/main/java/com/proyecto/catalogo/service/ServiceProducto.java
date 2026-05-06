@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import com.proyecto.catalogo.dto.ProductoCreateDTO;
+import com.proyecto.catalogo.dto.ProductoDTO;
 import com.proyecto.catalogo.modelo.*;
 
 @Service
@@ -17,6 +19,20 @@ public class ServiceProducto {
     
     public Producto CrearProducto(Producto producto){
         return repositoryProducto.save(producto);
+    }
+
+    public ProductoDTO findDtoById(Long id) {
+        Producto producto = repositoryProducto.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        return new ProductoDTO(producto.getId(), producto.getNombre(), producto.getDescripcion(), producto.getPrecio());
+    }
+
+    public ProductoDTO crearProductoDTO(ProductoCreateDTO productoCreateDTO) {
+        Producto producto = new Producto();
+        producto.setNombre(productoCreateDTO.getNombre());
+        producto.setDescripcion(productoCreateDTO.getDescripcion());
+        producto.setPrecio(productoCreateDTO.getPrecio());
+        Producto nuevoProducto = repositoryProducto.save(producto);
+        return new ProductoDTO(nuevoProducto.getId(), nuevoProducto.getNombre(), nuevoProducto.getDescripcion(), nuevoProducto.getPrecio());
     }
 
     // Método para validar manualmente un producto antes de guardarlo

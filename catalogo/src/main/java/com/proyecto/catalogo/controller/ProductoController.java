@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.proyecto.catalogo.modelo.Producto;
 import com.proyecto.catalogo.service.ServiceProducto;
+import com.proyecto.catalogo.dto.*;
 
 import jakarta.validation.Valid;
 
@@ -25,10 +26,19 @@ public class ProductoController {
     }
 
     //Por ID
-    @GetMapping("/{id}")
+    @GetMapping("/regular/{id}")
     public ResponseEntity<?> obtenerProductoId(@PathVariable Long id){
         Optional<Producto> prod = serviceProducto.obtenerProductoPorID(id);
         if (prod.isPresent()){
+            return new ResponseEntity<>(prod,HttpStatus.OK);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerProductoDTOId(@PathVariable Long id){
+        ProductoDTO prod = serviceProducto.findDtoById(id);
+        if (prod != null){
             return new ResponseEntity<>(prod,HttpStatus.OK);
         } else {
             return ResponseEntity.badRequest().build();
@@ -51,6 +61,13 @@ public class ProductoController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+
+    @PostMapping
+    public ResponseEntity<ProductoDTO> agregarProductoDTO(@Valid @RequestBody ProductoCreateDTO productoCreateDTO){
+        ProductoDTO prod = serviceProducto.crearProductoDTO(productoCreateDTO);
+        return new ResponseEntity<>(prod, HttpStatus.CREATED);
+    }
+
     //Borrar Producto
     @DeleteMapping("/{id}")
     public ResponseEntity<?> borrarProducto(@PathVariable Long id){
