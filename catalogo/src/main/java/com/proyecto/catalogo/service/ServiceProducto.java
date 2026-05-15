@@ -2,8 +2,9 @@ package com.proyecto.catalogo.service;
 import com.proyecto.catalogo.repository.*;
 
 import java.util.List;
-import java.util.Optional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.proyecto.catalogo.dto.ProductoCreateDTO;
 import com.proyecto.catalogo.dto.ProductoDTO;
@@ -11,32 +12,40 @@ import com.proyecto.catalogo.modelo.*;
 
 @Service
 public class ServiceProducto {
-    private final RepositoryProducto repositoryProducto;
+    
+    private static final Logger log = LoggerFactory.getLogger(ServiceProducto.class);
+
+    @Autowired
+    private RepositoryProducto repositoryProducto;
 
     public ServiceProducto(RepositoryProducto repositoryProducto) {
         this.repositoryProducto = repositoryProducto;
     }
-    
-    public Producto CrearProducto(Producto producto){
-        return repositoryProducto.save(producto);
-    }
 
     public ProductoDTO findDtoById(Long id) {
-        Producto producto = repositoryProducto.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        return new ProductoDTO(producto.getId(), producto.getNombre(), producto.getDescripcion(), producto.getPrecio());
+        log.info("Buscando producto id={}", id);
+        Producto prod = repositoryProducto.findById(id)
+        .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + id));
+        log.info("Producto encontrado: nombre={}, precio={}", prod.getNombre(), prod.getPrecio());
+        return toDTO(prod);
     }
 
-    public ProductoDTO crearProductoDTO(ProductoCreateDTO productoCreateDTO) {
-        Producto producto = new Producto();
-        producto.setNombre(productoCreateDTO.getNombre());
-        producto.setDescripcion(productoCreateDTO.getDescripcion());
-        producto.setPrecio(productoCreateDTO.getPrecio());
-        Producto nuevoProducto = repositoryProducto.save(producto);
-        return new ProductoDTO(nuevoProducto.getId(), nuevoProducto.getNombre(), nuevoProducto.getDescripcion(), nuevoProducto.getPrecio());
+    public ProductoDTO crearProductoDTO(ProductoCreateDTO producto) {
+        log.info("Creando producto nombre={}", producto.getNombre());
+        Producto p = new Producto();
+        p.setNombre(producto.getNombre());
+        p.setDescripcion(producto.getDescripcion());
+        p.setPrecio(producto.getPrecio());
+        Producto guardado = repositoryProducto.save(p);
+        log.info("Producto creado id={}", guardado.getId());
+        return toDTO(guardado);
     }
 
+    private ProductoDTO toDTO(Producto prod){
+        return new ProductoDTO(prod.getId(),prod.getNombre(),prod.getDescripcion(),prod.getPrecio());
+    }
     // Método para validar manualmente un producto antes de guardarlo
-    public List<String> ValidacionManualProducto(Producto producto) {
+    public List<String> ValidacionManualProductoDTO(Producto producto) {
         List<String> errores = new java.util.ArrayList<>();
         if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
             errores.add("El nombre del producto es obligatorio.");
@@ -52,13 +61,20 @@ public class ServiceProducto {
         return errores;
     }
     // Métodos para obtener Todos los productos o específicos
-    public List<Producto> obtenerTodosLosProductos() {
-        return repositoryProducto.findAll();
+    //public List<Producto> obtenerTodosLosProductos() {
+    //    return repositoryProducto.findAll();
+    //}
+
+    public List<ProductoDTO> findAllDTO(){
+    log.info("Catalogo de productos: ");
+      return repositoryProducto.findAll().stream()
+        .map(this::toDTO)
+        .toList();
     }
 
-    public Optional<Producto> obtenerProductoPorID(Long id){
-        return repositoryProducto.findById(id);
-    }
+    //public Optional<Producto> obtenerProductoPorID(Long id){
+    //    return repositoryProducto.findById(id);
+    //}
 
     // Métodos para eliminar productos por su ID o nombre
     public boolean eliminarProducto(Long id) {
@@ -69,16 +85,15 @@ public class ServiceProducto {
             return false;
         }
     }
-    public Producto actualizarProducto(Long id, Producto productoActualizado) {
-        Optional<Producto> productoExistente = repositoryProducto.findById(id);
-        if (productoExistente.isPresent()) {
-            Producto producto = productoExistente.get();
-            producto.setNombre(productoActualizado.getNombre());
-            producto.setPrecio(productoActualizado.getPrecio());
-            return repositoryProducto.save(producto);
-        } else {
-            return null;
-        }
+    public ProductoDTO ActualizarProductoDTO(Long id, ProductoCreateDTO dto) {
+        log.info("Actualizando producto id={}", id);
+        Producto productoExistente = repositoryProducto.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + id));
+        productoExistente.setNombre(dto.getNombre());
+        productoExistente.setDescripcion(dto.getDescripcion());
+        productoExistente.setPrecio(dto.getPrecio());
+        log.info("Producto actualizado id={}", productoExistente.getId());
+        return toDTO(repositoryProducto.save(productoExistente));
     }
 
 }
