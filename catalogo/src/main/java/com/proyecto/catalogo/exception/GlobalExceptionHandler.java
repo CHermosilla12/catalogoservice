@@ -27,4 +27,13 @@ public class GlobalExceptionHandler {
         error.put("error", "El cuerpo de la petición no es válido o faltan campos obligatorios");
         return error;
     }
+    
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoEncontradoException.class)
+    public Map<String, String> handleNoEncontradoException(NoEncontradoException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Producto no encontrado");
+        error.put("mensaje", ex.getMessage());
+        return error;
+    }
 }

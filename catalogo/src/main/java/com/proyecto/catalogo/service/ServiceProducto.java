@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.proyecto.catalogo.dto.ProductoCreateDTO;
 import com.proyecto.catalogo.dto.ProductoDTO;
 import com.proyecto.catalogo.modelo.*;
-
+import com.proyecto.catalogo.exception.*;
 @Service
 public class ServiceProducto {
     
@@ -25,7 +25,7 @@ public class ServiceProducto {
     public ProductoDTO findDtoById(Long id) {
         log.info("Buscando producto id={}", id);
         Producto prod = repositoryProducto.findById(id)
-        .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + id));
+        .orElseThrow(() -> new NoEncontradoException("Producto no encontrado con id: " + id));
         log.info("Producto encontrado: nombre={}, precio={}", prod.getNombre(), prod.getPrecio());
         return toDTO(prod);
     }
@@ -49,14 +49,18 @@ public class ServiceProducto {
         List<String> errores = new java.util.ArrayList<>();
         if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
             errores.add("El nombre del producto es obligatorio.");
+            log.warn("Validación fallida: nombre del producto es obligatorio.");
         }
         if (producto.getPrecio() == null) {
             errores.add("El precio del producto es obligatorio.");
+            log.warn("Validación fallida: precio del producto es obligatorio.");
         } else if (producto.getPrecio() <= 0) {
             errores.add("El precio del producto debe ser un valor positivo.");
+            log.warn("Validación fallida: precio del producto debe ser positivo.");
         }
         if (producto.getDescripcion() == null || producto.getDescripcion().length() > 500 || producto.getDescripcion().isEmpty()) {
             errores.add("La descripción del producto es obligatoria y no puede exceder los 500 caracteres.");
+            log.warn("Validación fallida: descripción del producto es obligatoria y no puede exceder los 500 caracteres.");
         }
         return errores;
     }
@@ -88,7 +92,7 @@ public class ServiceProducto {
     public ProductoDTO ActualizarProductoDTO(Long id, ProductoCreateDTO dto) {
         log.info("Actualizando producto id={}", id);
         Producto productoExistente = repositoryProducto.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + id));
+                .orElseThrow(() -> new NoEncontradoException("Producto no encontrado con id: " + id));
         productoExistente.setNombre(dto.getNombre());
         productoExistente.setDescripcion(dto.getDescripcion());
         productoExistente.setPrecio(dto.getPrecio());
