@@ -64,10 +64,6 @@ public class ServiceProducto {
         }
         return errores;
     }
-    // Métodos para obtener Todos los productos o específicos
-    //public List<Producto> obtenerTodosLosProductos() {
-    //    return repositoryProducto.findAll();
-    //}
 
     public List<ProductoDTO> findAllDTO(){
     log.info("Catalogo de productos: ");
@@ -76,11 +72,7 @@ public class ServiceProducto {
         .toList();
     }
 
-    //public Optional<Producto> obtenerProductoPorID(Long id){
-    //    return repositoryProducto.findById(id);
-    //}
-
-    // Métodos para eliminar productos por su ID o nombre
+    // Métodos para eliminar productos por su ID
     public boolean eliminarProducto(Long id) {
         if (repositoryProducto.existsById(id)){
             repositoryProducto.deleteById(id);
